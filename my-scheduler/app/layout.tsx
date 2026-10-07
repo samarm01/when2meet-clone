@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "When2Matt | A When2Meet clone built with Next.js 13",
-  description: "Mobile-friendly group scheduling with interactive heatmaps",
+  title: "When2Matt | A more mobile-friendly When2Meet clone",
+  description: "Mobile-friendly group scheduling with interactive heatmaps, built by me",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
