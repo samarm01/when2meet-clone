@@ -45,6 +45,9 @@ export default function PollPage() {
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [dragMode, setDragMode] = useState<'add' | 'remove'>('add');
 
+  // Theme Color State (RGB format, default Emerald)
+  const [themeColor, setThemeColor] = useState('16, 185, 129');
+
   // Toast Notification State
   const [toast, setToast] = useState<string | null>(null);
 
@@ -72,7 +75,9 @@ export default function PollPage() {
         if (pollData.dates.length > 0) {
           setFormDate(pollData.dates[0]);
         }
-        document.title = `${pollData.title} | When2Matt`;
+
+        // Set dynamic browser tab title
+        document.title = `${pollData.title} | when2matt`;
 
         const { data: availData, error: availError } = await supabase
           .from('availabilities')
@@ -187,7 +192,7 @@ export default function PollPage() {
     });
   }
 
-// 5. Form Range Selector with Automatic Interval Snapping
+  // 5. Form Range Selector with Automatic Interval Snapping
   function handleSelectRange(e: React.FormEvent) {
     e.preventDefault();
     if (!formDate || !startTime || !endTime) return;
@@ -312,8 +317,13 @@ export default function PollPage() {
         {/* Header */}
         <header className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">{poll.title}</h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                when2matt
+              </span>
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900 mt-1">{poll.title}</h1>
+            <p className="text-sm text-slate-500 mt-0.5">
               {totalParticipants} participant{totalParticipants === 1 ? '' : 's'} responded
             </p>
           </div>
@@ -408,10 +418,57 @@ export default function PollPage() {
 
         {/* Interactive Heatmap & Drag Selection Grid */}
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">
-              2. Availability Grid (Click & Drag to Paint / Erase)
-            </h2>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+            <div className="flex items-center gap-3">
+              <h2 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">
+                2. Availability Grid
+              </h2>
+
+              {/* Theme Palette Swatches (Emerald, Blue, Violet, Rose, Orange) */}
+              <div className="flex items-center gap-1.5 border-l border-slate-300 pl-3">
+                <button
+                  type="button"
+                  onClick={() => setThemeColor('16, 185, 129')}
+                  className={`w-5 h-5 rounded-full bg-emerald-500 transition ${
+                    themeColor === '16, 185, 129' ? 'ring-2 ring-offset-2 ring-emerald-500 scale-110' : 'opacity-80 hover:opacity-100'
+                  }`}
+                  title="Emerald Green"
+                />
+                <button
+                  type="button"
+                  onClick={() => setThemeColor('59, 130, 246')}
+                  className={`w-5 h-5 rounded-full bg-blue-500 transition ${
+                    themeColor === '59, 130, 246' ? 'ring-2 ring-offset-2 ring-blue-500 scale-110' : 'opacity-80 hover:opacity-100'
+                  }`}
+                  title="Blue"
+                />
+                <button
+                  type="button"
+                  onClick={() => setThemeColor('139, 92, 246')}
+                  className={`w-5 h-5 rounded-full bg-violet-500 transition ${
+                    themeColor === '139, 92, 246' ? 'ring-2 ring-offset-2 ring-violet-500 scale-110' : 'opacity-80 hover:opacity-100'
+                  }`}
+                  title="Violet"
+                />
+                <button
+                  type="button"
+                  onClick={() => setThemeColor('244, 63, 94')}
+                  className={`w-5 h-5 rounded-full bg-rose-500 transition ${
+                    themeColor === '244, 63, 94' ? 'ring-2 ring-offset-2 ring-rose-500 scale-110' : 'opacity-80 hover:opacity-100'
+                  }`}
+                  title="Rose"
+                />
+                <button
+                  type="button"
+                  onClick={() => setThemeColor('249, 115, 22')}
+                  className={`w-5 h-5 rounded-full bg-orange-500 transition ${
+                    themeColor === '249, 115, 22' ? 'ring-2 ring-offset-2 ring-orange-500 scale-110' : 'opacity-80 hover:opacity-100'
+                  }`}
+                  title="Orange"
+                />
+              </div>
+            </div>
+
             {hoveredSlot && (
               <div className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1.5 rounded-md border border-slate-200 font-medium">
                 <span className="text-slate-900 font-bold">{hoveredSlot}: </span>
@@ -455,10 +512,10 @@ export default function PollPage() {
                       const count = availablePeople.length;
                       const ratio = totalParticipants > 0 ? count / totalParticipants : 0;
 
-                      // Heatmap color calculation
+                      // Heatmap color calculation using dynamic themeColor
                       let backgroundColor = '#ffffff';
                       if (count > 0) {
-                        backgroundColor = `rgba(16, 185, 129, ${Math.max(0.15, ratio)})`;
+                        backgroundColor = `rgba(${themeColor}, ${Math.max(0.15, ratio)})`;
                       }
 
                       return (
