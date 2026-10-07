@@ -72,6 +72,7 @@ export default function PollPage() {
         if (pollData.dates.length > 0) {
           setFormDate(pollData.dates[0]);
         }
+        document.title = `${pollData.title} | When2Matt`;
 
         const { data: availData, error: availError } = await supabase
           .from('availabilities')
@@ -186,7 +187,7 @@ export default function PollPage() {
     });
   }
 
-  // 5. Form Range Selector ("Select Time Range")
+// 5. Form Range Selector with Automatic Interval Snapping
   function handleSelectRange(e: React.FormEvent) {
     e.preventDefault();
     if (!formDate || !startTime || !endTime) return;
@@ -195,15 +196,32 @@ export default function PollPage() {
       return;
     }
 
+    const interval = poll?.interval_minutes || 30;
+
+    let [startH, startM] = startTime.split(':').map(Number);
+    let [endH, endM] = endTime.split(':').map(Number);
+
+    // Snap start DOWN to nearest slot boundary (e.g. 09:15 -> 09:00)
+    startM = Math.floor(startM / interval) * interval;
+
+    // Snap end UP to nearest slot boundary (e.g. 11:15 -> 11:30)
+    if (endM % interval !== 0) {
+      endM = Math.ceil(endM / interval) * interval;
+      if (endM >= 60) {
+        endH += Math.floor(endM / 60);
+        endM = endM % 60;
+      }
+    }
+
     const newSlots = new Set(selectedSlots);
-    let [h, m] = startTime.split(':').map(Number);
-    const [endH, endM] = endTime.split(':').map(Number);
+    let h = startH;
+    let m = startM;
 
     while (h < endH || (h === endH && m < endM)) {
       const slotKey = `${formDate}T${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
       newSlots.add(slotKey);
 
-      m += poll?.interval_minutes || 30;
+      m += interval;
       if (m >= 60) {
         h += Math.floor(m / 60);
         m = m % 60;
